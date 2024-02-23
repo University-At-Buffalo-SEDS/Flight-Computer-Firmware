@@ -115,7 +115,7 @@ constexpr std::array<ChannelConfig, (size_t)Channel::Count> channel_config = {
 #define FLIGHT_FLASH_SCK_PIN PB13
 
 #define GPS_SERIAL Serial2
-#define XBEE_SERIAL Serial3
+#define RADIO_SERIAL Serial3
 
 #define EEPROM_FLIGHT 0
 
