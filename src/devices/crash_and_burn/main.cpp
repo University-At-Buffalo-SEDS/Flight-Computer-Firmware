@@ -2,13 +2,10 @@
 #include "baro.hpp"
 #include "gyro.hpp"
 #include "config.hpp"
-#include "gps.hpp"
 #include "kalman.hpp"
 #include "log.hpp"
-#include "radio.hpp"
 #include "scheduler.hpp"
 #include "util.hpp"
-#include "buzzer.hpp"
 
 #include <SPI.h>
 #include <Wire.h>
@@ -18,6 +15,11 @@
 #if defined (USBCON) && defined(USBD_USE_CDC)
 #include "USBSerial.h"
 USBSerial usb_serial;
+#endif
+
+#ifdef SOFTSERIAL
+#include <SoftwareSerial.h>
+SoftwareSerial softSerial();
 #endif
 
 struct ChannelStatus {
@@ -72,19 +74,10 @@ void setup()
 	pinMode(PIN_FLASH_CS, OUTPUT);
 	digitalWrite(PIN_FLASH_CS, HIGH);
 
-	pinMode(PIN_NEOGPS_CS, OUTPUT);
-	digitalWrite(PIN_NEOGPS_CS, HIGH);
-
-	// Setup Buzzer
-	pinMode(PIN_BUZZER, OUTPUT);
-	digitalWrite(PIN_BUZZER, LOW);
-
-	pinMode(PIN_BATT_V, INPUT_ANALOG);
+	// pinMode(PIN_BATT_V, INPUT_ANALOG);
 	// pinMode(PIN_SYS_V, INPUT_ANALOG);
-	analogReadResolution(12);  // Enable full resolution
-	analogWriteResolution(12);  // Enable full resolution
-
-	buzzer_on();
+	// analogReadResolution(12);  // Enable full resolution
+	// analogWriteResolution(12);  // Enable full resolution
 
 #if defined (USBCON) && defined(USBD_USE_CDC)
 	usb_serial.begin();
@@ -98,14 +91,12 @@ void setup()
 
 	SPI.begin();
 
-	gps_setup();
 	baro_setup();
 	accel_setup();
-	gyro_setup();
+	// gyro_setup();
 #if LOG_ENABLE
 	log_setup();
 #endif
-	radio_setup();
 
 	scheduler_add(TaskId::Deployment, Task(deployment_step, KALMAN_PERIOD * 1000L, 2500));
 	scheduler_add(TaskId::ChannelTimeout, Task(channel_step,
@@ -155,20 +146,6 @@ void command_step()
 		// Serial.println("Unrecognized command.");
 		break;
 	}
-
-	// Radio control
-	if (!launched) {
-		switch (XBEE_SERIAL.read()) {
-			case 'd':
-				channel_fire(Channel::Drogue);
-				break;
-			case 'm':
-				channel_fire(Channel::Main);
-				break;
-			default:
-				break;
-		}
-	}
 }
 
 void blink_step()
@@ -180,7 +157,6 @@ void blink_step()
 
 void print_step()
 {
-	gps_print();
 	accel_print();
 	baro_print();
 	Serial.print("Kalman [pos, rate, accel]: ");
@@ -200,11 +176,8 @@ void deployment_step()
 	static AvgHistory<float, EST_HISTORY_SAMPLES, 3> ground_level_est_state;
 	static kfloat_t apogee = 0;
 	float *accel = accel_get();
+	float *rad = gyro_get();
 	float raw_alt = baro_get_altitude();
-	// Only send telemetry every other step to avoid saturating the link and
-	// increasing latency.  This variable can be temporarily overridden to
-	// immediately send important updates (e.g., launch and apogee detection).
-	static bool send_now = true;
 	uint32_t step_time = millis();
 
 	if (std::isnan(raw_alt) || std::isnan(accel[0])) {
@@ -226,7 +199,6 @@ void deployment_step()
 		}
 		
 		phase = FlightPhase::Idle;
-		buzzer_ready();
 	}
 
 	accel_mag -= gravity_est_state.old_avg();
@@ -258,11 +230,7 @@ void deployment_step()
 #if LOG_ENABLE
 			log_start();
 #endif
-			send_now = true;
 			launched = true;
-
-			// Turn buzzer off if we in  the launch phase
-			digitalWrite(PIN_BUZZER, LOW);
 		}
 	} else if (phase == FlightPhase::Launched) {
 		// Detect apogee
@@ -273,7 +241,6 @@ void deployment_step()
 			phase = FlightPhase::DescendingWithDrogue;
 
 			Serial.println(F("===================================== Apogee!"));
-			send_now = true;
 		}
 	} else if (phase == FlightPhase::DescendingWithDrogue) {
 		// If we've reached apogee we won't be going very fast and
@@ -293,7 +260,6 @@ void deployment_step()
 			channel_fire(Channel::Main);
 
 			Serial.println(F("===================================== Deploy main!"));
-			send_now = true;
 		}
 	} else if (phase == FlightPhase::DescendingWithMain) {
 		if (kf.pos() < LANDED_ALT &&
@@ -308,7 +274,6 @@ void deployment_step()
 				
 				phase = FlightPhase::Landed;
 				Serial.println(F("===================================== Landed!"));
-				send_now = true;
 #if LOG_ENABLE
 				log_stop();
 #endif
@@ -318,10 +283,10 @@ void deployment_step()
 		}
 	}
 
-	uint32_t batt_v = analogRead(PIN_BATT_V);
-	batt_v = map(batt_v, BATT_MIN_READING, BATT_MAX_READING, 0, BATT_MAX_VOLTAGE);
+	// uint32_t batt_v = analogRead(PIN_BATT_V);
+	// batt_v = map(batt_v, BATT_MIN_READING, BATT_MAX_READING, 0, BATT_MAX_VOLTAGE);
 
-	uint32_t sys_v = 0;
+	// uint32_t sys_v = 0;
 	// uint32_t sys_v = analogRead(PIN_SYS_V);
 	// sys_v = map(sys_v, SYS_MIN_READING, SYS_MAX_READING, 0, SYS_MAX_VOLTAGE);
 
@@ -330,24 +295,16 @@ void deployment_step()
 		step_time,
 		kf.state(),
 		raw_alt,
+		baro_get_pressure(),
 		accel[0],
 		accel[1],
 		accel[2],
-		gps_get_lat(),
-		gps_get_lon(),
-		gps_get_alt(),
-		baro_get_temp(),
-		baro_get_pressure(),
-		(uint16_t)batt_v,
-		(uint16_t)sys_v
+		rad[0],
+		rad[1],
+		rad[2],
+		baro_get_temp()
+		// (uint16_t)batt_v,
+		// (uint16_t)sys_v
 	));
 #endif
-
-	if (send_now) {
-		radio_send(Packet(phase, step_time, kf.pos(), kf.rate(), kf.accel(),
-				alt, accel_mag, gps_get_lat(), gps_get_lon(), apogee,
-				baro_get_temp(), batt_v));
-	}
-
-	send_now = !send_now;
 }

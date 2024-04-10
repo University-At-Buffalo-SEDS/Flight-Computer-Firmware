@@ -298,7 +298,7 @@ void baro_print()
 	Serial.println("Pa");
 
 	Serial.print(F("Temp: "));
-	Serial.print(last_temp / 100);
+	Serial.print((float)last_temp / 100);
 	Serial.println("C");
 }
 

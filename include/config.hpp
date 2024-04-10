@@ -9,7 +9,7 @@
 #include <array>
 #include <cstddef>
 
-#define LOG_ENABLE 1
+#define LOG_ENABLE 0
 
 // Rates which trigger a launch event (deployment will only occur
 // when apogee is detected after a launch event).  Velocity and
@@ -115,7 +115,7 @@ constexpr std::array<ChannelConfig, (size_t)Channel::Count> channel_config = {
 #define FLIGHT_FLASH_SCK_PIN PB13
 
 #define GPS_SERIAL Serial2
-#define XBEE_SERIAL Serial3
+#define RADIO_SERIAL Serial3
 
 #define EEPROM_FLIGHT 0
 

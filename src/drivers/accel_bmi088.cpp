@@ -75,14 +75,15 @@ void accel_setup()
 
     // Put the Accel into Active mode
     write_reg(BMI088_ACC_REG_PWR_CONF, 0x00);
+    delay(50);
+    // Turns on the accelerometer's sensor module
+    write_reg(BMI088_ACC_REG_PWR_CTRL, 0x04);
     // Section 5.3.10
     // Set for max oversampling with total sampling rate > kalman frequency
     write_reg(BMI088_ACC_REG_CONF, sampling_conf);
     // Section 5.3.11
     // Set for 24Gs
     write_reg(BMI088_ACC_REG_RANGE, range_conf);
-    // Turns on the accelerometer's sensor module
-    write_reg(BMI088_ACC_REG_PWR_CTRL, 0x04);
     delay(50);
 
     // Test sampling config
@@ -92,7 +93,7 @@ void accel_setup()
     }
 
     // Test range config
-    if (read_reg(BMI088_ACC_REG_RANGE) != range_conf) {
+    if ( (read_reg(BMI088_ACC_REG_RANGE) & 0x3) != range_conf) {
         Serial.println(F("BMI088 Accel incorrect range set!"));
         abort();
     }
