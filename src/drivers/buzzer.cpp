@@ -30,9 +30,7 @@ void buzzer_setup(long *arr) {
 
 void setbeep_number(long *arr){
 
-//adds inputs to the array inputs[]
-  
-  *inputs = &arr;
+inputs = arr;
 
 /*//prints them for visual effect
   for (int g = 0; g < size; g++){
@@ -120,5 +118,4 @@ int beep_number(){
         return 3;
     }
   }
-  delay(100);
 }
