@@ -2,10 +2,8 @@
 #include "baro.hpp"
 #include "gyro.hpp"
 #include "config.hpp"
-#include "gps.hpp"
 #include "kalman.hpp"
 #include "log.hpp"
-#include "radio.hpp"
 #include "scheduler.hpp"
 #include "util.hpp"
 #include "buzzer.hpp"
@@ -81,7 +79,7 @@ void setup()
 
 	pinMode(PIN_BATT_V, INPUT_ANALOG);
 	// pinMode(PIN_SYS_V, INPUT_ANALOG);
-	analogReadResolution(12);  	// Enable full resolution
+	analogReadResolution(12);  // Enable full resolution
 	analogWriteResolution(12);  // Enable full resolution
 
 	buzzer_on();
@@ -98,14 +96,12 @@ void setup()
 
 	SPI.begin();
 
-	gps_setup();
 	baro_setup();
 	accel_setup();
 	gyro_setup();
 #if LOG_ENABLE
 	log_setup();
 #endif
-	radio_setup();
 
 	scheduler_add(TaskId::Deployment, Task(deployment_step, KALMAN_PERIOD * 1000L, 2500));
 	scheduler_add(TaskId::ChannelTimeout, Task(channel_step,
@@ -161,11 +157,9 @@ void command_step()
 		switch (RADIO_SERIAL.read()) {
 			case 'd':
 				channel_fire(Channel::Drogue);
-				Serial.println("Firing Drogue");
 				break;
 			case 'm':
 				channel_fire(Channel::Main);
-				Serial.println("Firing Main");
 				break;
 			default:
 				break;
@@ -182,9 +176,7 @@ void blink_step()
 
 void print_step()
 {
-	gps_print();
 	accel_print();
-	gyro_print();
 	baro_print();
 	Serial.print("Kalman [pos, rate, accel]: ");
 	Serial.print(kf.pos());
@@ -328,7 +320,6 @@ void deployment_step()
 	// uint32_t sys_v = analogRead(PIN_SYS_V);
 	// sys_v = map(sys_v, SYS_MIN_READING, SYS_MAX_READING, 0, SYS_MAX_VOLTAGE);
 
-	float* gyro = gyro_get();
 #if LOG_ENABLE
 	log_add(LogMessage(
 		step_time,
@@ -337,25 +328,15 @@ void deployment_step()
 		accel[0],
 		accel[1],
 		accel[2],
-		gps_get_lat(),
-		gps_get_lon(),
-		gps_get_alt(),
+		0.0f,
+		1.0f,
+		2.0f,
 		baro_get_temp(),
 		baro_get_pressure(),
 		(uint16_t)batt_v,
 		(uint16_t)sys_v
 	));
 #endif
-
-
-	if (send_now) {
-		radio_send(Packet(step_time, apogee, kf.pos(), kf.rate(), kf.accel(),
-				alt, baro_get_pressure(),
-				accel[0], accel[1], accel[2],
-				gyro[0], gyro[1], gyro[2],
-				gps_get_lat(), gps_get_lon(),
-				baro_get_temp(), batt_v, 0.0f, phase));
-	}
 
 	send_now = !send_now;
 }

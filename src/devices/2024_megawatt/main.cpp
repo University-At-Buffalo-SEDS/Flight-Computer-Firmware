@@ -124,27 +124,6 @@ void loop()
 	}
 }
 
-void channel_fire(Channel chan)
-{
-	ChannelStatus &status = channel_status[(size_t)chan];
-	status.firing = true;
-	status.fire_time = millis();
-	digitalWrite(channel_config[(size_t)chan].fire_pin, HIGH);
-}
-
-void channel_step()
-{
-	uint32_t now = millis();
-	for (size_t i = 0; i < channel_status.size(); ++i) {
-		ChannelStatus &status = channel_status[i];
-		const ChannelConfig &config = channel_config[i];
-		if (status.firing && delta(status.fire_time, now) > CHANNEL_FIRE_TIME) {
-			status.firing = false;
-			digitalWrite(config.fire_pin, LOW);
-		}
-	}
-}
-
 void command_step()
 {
 	switch (Serial.read()) {

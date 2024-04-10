@@ -69,7 +69,7 @@ void gyro_setup()
     }
 
     // Test range config
-    if (read_reg(BMI088_GYR_REG_BANDWIDTH) != BMI088_GYR_ODR_100Hz_BW_32Hz) {
+    if ((read_reg(BMI088_GYR_REG_BANDWIDTH) & ~0x80) != BMI088_GYR_ODR_100Hz_BW_32Hz) {
         Serial.println(F("BMI088 Gyro incorrect bandwidth set!"));
         abort();
     }
