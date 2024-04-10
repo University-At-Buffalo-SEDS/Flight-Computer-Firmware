@@ -1,4 +1,3 @@
 #pragma once
 
-void buzzer_on();
-void buzzer_ready();
+void buzzer_setup(long *arr);
