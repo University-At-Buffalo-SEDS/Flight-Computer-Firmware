@@ -19,6 +19,7 @@ enum class TaskId : uint8_t {
 	Command,
 	Print,
 	Blink,
+	Beep,
 	Count,
 };
 
