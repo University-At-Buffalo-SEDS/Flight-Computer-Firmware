@@ -82,7 +82,8 @@ void setup()
 	analogReadResolution(12);  // Enable full resolution
 	analogWriteResolution(12);  // Enable full resolution
 
-	buzzer_on();
+	long arr[3] = {3,1,2};
+	buzzer_setup(&arr[0]);
 
 #if defined (USBCON) && defined(USBD_USE_CDC)
 	usb_serial.begin();
@@ -221,7 +222,6 @@ void deployment_step()
 		}
 		
 		phase = FlightPhase::Idle;
-		buzzer_ready();
 	}
 
 	accel_mag -= gravity_est_state.old_avg();
