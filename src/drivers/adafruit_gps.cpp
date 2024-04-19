@@ -1,3 +1,5 @@
+#ifdef ADAFRUIT_GPS
+
 #include "gps.hpp"
 #include "scheduler.hpp"
 #include "util.hpp"
@@ -139,3 +141,5 @@ void gps_print()
 		Serial.println(F("No fix."));
 	}
 }
+
+#endif

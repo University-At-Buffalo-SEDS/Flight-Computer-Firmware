@@ -82,7 +82,7 @@ void setup()
 	analogReadResolution(12);  // Enable full resolution
 	analogWriteResolution(12);  // Enable full resolution
 
-	long arr[3] = {3,1,2};
+	long arr[3] = {int(MAIN_DEPLOY_ALTITUDE),1,2};
 	buzzer_setup(&arr[0]);
 
 #if defined (USBCON) && defined(USBD_USE_CDC)
