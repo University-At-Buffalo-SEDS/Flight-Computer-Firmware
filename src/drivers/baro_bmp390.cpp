@@ -187,7 +187,7 @@ void baro_setup()
 	// Read chip id
     if(read_reg(BMP390_REG_CHIP_ID) != BMP390_CHIP_ID) {
         Serial.println(F("BMP390 not found!"));
-        abort();
+        // abort();
     } else {
         Serial.println(F("BMP390 detected"));
     }
@@ -210,25 +210,25 @@ void baro_setup()
 	// Test power config
     if (read_reg(BMP390_REG_PWR_CTRL) != power_conf) {
         Serial.println(F("BMP390 power conf is not set!"));
-        abort();
+        // abort();
     }
 
     // Test sensor oversampling config
     if (read_reg(BMP390_REG_OSR) != osr_conf) {
         Serial.println(F("BMP390 OSR config not set!"));
-        abort();
+        // abort();
     }
 
     // Test sensor output data rate config
     if (read_reg(BMP390_REG_ODR) != odr_conf) {
         Serial.println(F("BMP390 ODR config not set"));
-        abort();
+        // abort();
     }
 
-	uint8_t is_baro_ready = read_reg(0x03) & 0x70;
-	while (is_baro_ready != 0x70) {
-		is_baro_ready = read_reg(0x03) & 0x70;
-	}
+	// uint8_t is_baro_ready = read_reg(0x03) & 0x70;
+	// while (is_baro_ready != 0x70) {
+	// 	is_baro_ready = read_reg(0x03) & 0x70;
+	// }
 
 	/* Add the barometer step function to the scheduler
 	 */

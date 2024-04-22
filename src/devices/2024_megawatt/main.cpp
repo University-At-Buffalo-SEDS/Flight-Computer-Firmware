@@ -60,31 +60,10 @@ void setup()
 	pinMode(LED_BUILTIN, OUTPUT);
 	digitalWrite(LED_BUILTIN, HIGH);
 
-	pinMode(PIN_ACCEL_CS, OUTPUT);
-	digitalWrite(PIN_ACCEL_CS, HIGH);
-
-	pinMode(PIN_BARO_CS, OUTPUT);
-	digitalWrite(PIN_BARO_CS, HIGH);
-
-	pinMode(PIN_GYRO_CS, OUTPUT);
-	digitalWrite(PIN_GYRO_CS, HIGH);
-
-	pinMode(PIN_FLASH_CS, OUTPUT);
-	digitalWrite(PIN_FLASH_CS, HIGH);
-
-	pinMode(PIN_NEOGPS_CS, OUTPUT);
-	digitalWrite(PIN_NEOGPS_CS, HIGH);
-
-	// Setup Buzzer
-	pinMode(PIN_BUZZER, OUTPUT);
-	digitalWrite(PIN_BUZZER, LOW);
-
 	pinMode(PIN_BATT_V, INPUT_ANALOG);
 	// pinMode(PIN_SYS_V, INPUT_ANALOG);
 	analogReadResolution(12);  	// Enable full resolution
 	analogWriteResolution(12);  // Enable full resolution
-
-	buzzer_on();
 
 #if defined (USBCON) && defined(USBD_USE_CDC)
 	usb_serial.begin();
@@ -107,12 +86,12 @@ void setup()
 #endif
 	radio_setup();
 
-	scheduler_add(TaskId::Deployment, Task(deployment_step, KALMAN_PERIOD * 1000L, 2500));
-	scheduler_add(TaskId::ChannelTimeout, Task(channel_step,
-			CHANNEL_FIRE_TIME * 100L, 10));
-	scheduler_add(TaskId::Command, Task(command_step, 100'000L, 10));
-	scheduler_add(TaskId::Print, Task(print_step, 3'000'000L, 3000));
-	scheduler_add(TaskId::Blink, Task(blink_step, (KALMAN_PERIOD / 2) * 1000L, 20));
+	// scheduler_add(TaskId::Deployment, Task(deployment_step, KALMAN_PERIOD * 1000L, 2500));
+	// scheduler_add(TaskId::ChannelTimeout, Task(channel_step,
+			// CHANNEL_FIRE_TIME * 100L, 10));
+	// scheduler_add(TaskId::Command, Task(command_step, 100'000L, 10));
+	// scheduler_add(TaskId::Print, Task(print_step, 3'000'000L, 3000));
+	// scheduler_add(TaskId::Blink, Task(blink_step, (KALMAN_PERIOD / 2) * 1000L, 20));
 	
 }
 
@@ -208,7 +187,6 @@ void deployment_step()
 		}
 		
 		phase = FlightPhase::Idle;
-		buzzer_ready();
 	}
 
 	accel_mag -= gravity_est_state.old_avg();

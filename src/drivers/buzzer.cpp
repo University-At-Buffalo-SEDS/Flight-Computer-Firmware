@@ -6,7 +6,7 @@
 #include <string.h>
 #include <math.h>
 
-long buzzer = 8;
+long buzzer = PIN_BUZZER;
 int beep_number();
 void setbeep_number(long *arr);
 void value_change();
@@ -101,10 +101,10 @@ int beep_number(){
         return 1;      
         }
         else{   //current number still needs to be buzzed
-        Serial.print(num_current);Serial.print(": ");Serial.print(i);Serial.print(" ");
+        // Serial.print(num_current);Serial.print(": ");Serial.print(i);Serial.print(" ");
 
         i--;                            //deduct 1 from current number          
-        Serial.print("Beep\n");
+        // Serial.println("\nBeep");
         digitalWrite(buzzer,HIGH);     
         return 0;
         }

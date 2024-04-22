@@ -48,7 +48,7 @@ void gyro_setup()
     // Check if we can get the chip id
     if(read_reg(BMI088_GYR_REG_CHIP_ID) != BMI088_GYR_CHIP_ID) {
         Serial.println(F("BMI088 Gyro not found!"));
-        abort();
+        // abort();
     } else {
         Serial.println(F("BMI088 Gyro detected"));
     }
@@ -65,13 +65,13 @@ void gyro_setup()
     // Test sampling config
     if (read_reg(BMI088_GYR_REG_RANGE) != BMI088_GYR_2000DPS_RANGE) {
         Serial.println(F("BMI088 Gyri incorrect range set!"));
-        abort();
+        // abort();
     }
 
     // Test range config
     if ((read_reg(BMI088_GYR_REG_BANDWIDTH) & ~0x80) != BMI088_GYR_ODR_100Hz_BW_32Hz) {
         Serial.println(F("BMI088 Gyro incorrect bandwidth set!"));
-        abort();
+        // abort();
     }
 
     scheduler_add(TaskId::Gyro, Task(gyro_step, KALMAN_PERIOD * 1000L, 120));

@@ -68,7 +68,7 @@ void accel_setup()
     // Check if we can get the chip id
     if(read_reg(BMI088_ACC_REG_CHIP_ID) != BMI088_ACC_CHIP_ID) {
         Serial.println(F("BMI088 Accel not found!"));
-        abort();
+        // abort();
     } else {
         Serial.println(F("BMI088 Accel detected"));
     }
@@ -89,19 +89,19 @@ void accel_setup()
     // Test sampling config
     if (read_reg(BMI088_ACC_REG_CONF) != sampling_conf) {
         Serial.println(F("BMI088 Accel incorrect sampling rate set!"));
-        abort();
+        // abort();
     }
 
     // Test range config
     if ( (read_reg(BMI088_ACC_REG_RANGE) & 0x3) != range_conf) {
         Serial.println(F("BMI088 Accel incorrect range set!"));
-        abort();
+        // abort();
     }
 
     // Test if accel is powered on
     if (read_reg(BMI088_ACC_REG_PWR_CTRL) != 0x04) {
         Serial.println(F("BMI088 Accel did not turn on!"));
-        abort();
+        // abort();
     }
 
     scheduler_add(TaskId::Accel, Task(accel_step, KALMAN_PERIOD * 1000L, 120));

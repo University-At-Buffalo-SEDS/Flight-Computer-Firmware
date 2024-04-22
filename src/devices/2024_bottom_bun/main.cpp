@@ -91,6 +91,8 @@ void setup()
 	Serial.begin(9'600);
 #endif
 
+	while(!Serial) {}
+
 	Serial.println(F("Flight Computer " __DATE__ " " __TIME__));
 
 	Wire.begin();

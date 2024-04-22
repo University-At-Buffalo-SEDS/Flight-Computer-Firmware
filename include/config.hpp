@@ -82,10 +82,15 @@
 
 #define PIN_BUZZER		PC13
 
-#define PIN_BARO_CS		PB0
-#define PIN_ACCEL_CS	PB12
-#define PIN_GYRO_CS		PB2
-#define PIN_FLASH_CS	PB9
+#define PIN_BARO_CS		PB13
+#define PIN_ACCEL_CS	PB11
+#define PIN_GYRO_CS		PB12
+#define PIN_FLASH_CS	PB14
+
+// #define PIN_BARO_CS		PB0
+// #define PIN_ACCEL_CS	PB12
+// #define PIN_GYRO_CS		PB2
+// #define PIN_FLASH_CS	PB9
 
 #define PIN_NEOGPS_CS	PB1
 
@@ -115,7 +120,7 @@ constexpr std::array<ChannelConfig, (size_t)Channel::Count> channel_config = {
 #define FLIGHT_FLASH_SCK_PIN PB13
 
 #define GPS_SERIAL Serial2
-#define RADIO_SERIAL Serial3
+#define RADIO_SERIAL Serial1
 
 #define EEPROM_FLIGHT 0
 

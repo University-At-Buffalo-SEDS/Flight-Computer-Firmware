@@ -50,7 +50,7 @@ void gps_setup()
 void gps_step()
 {
 	gps.latitudeDegrees = (float)gps_device.getLatitude() / GPS_LONG_FLOAT_DEGREES;
-	gps.longitudeDegrees = (float)gps_device.getLatitude() / GPS_LONG_FLOAT_DEGREES;
+	gps.longitudeDegrees = (float)gps_device.getLongitude() / GPS_LONG_FLOAT_DEGREES;
 	gps.altitude = (float)gps_device.getAltitude();
 	gps.fix = gps_device.getFixType();
 	gps.satellites = (float)gps_device.getSIV();
@@ -115,9 +115,9 @@ void gps_print()
 		Serial.print(F("Fix("));
 		Serial.print(gps.fix);
 		Serial.print(F("): "));
-		Serial.print(gps.latitudeDegrees, 4);
+		Serial.print(gps.latitudeDegrees, 7);
 		Serial.print(F(", ")); 
-		Serial.print(gps.longitudeDegrees, 4);
+		Serial.print(gps.longitudeDegrees, 7);
 
 		Serial.print(F("; Speed: "));
 		Serial.print(gps.speed);  // Convert knots to m/s
